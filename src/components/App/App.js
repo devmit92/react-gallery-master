@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
 import './App.css';
 import Axios from 'axios';
+import GalleryList from '../Gallery List/GalleryList';
 
 class App extends Component {
-  state = {
-    galleryItems: [],
-  };
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      galleryData: []
+    }
+  }
 
   componentDidMount() {
     this.getGalleryImages();
@@ -22,51 +28,30 @@ class App extends Component {
       })
   }
 
-  updateGalleryImages = (event) => {
-    const imageIndex = event.target.dataset.id;
-    console.log(imageIndex);
-    const imageID = this.state.galleryItems[imageIndex].id;
- 
-
-    Axios.put('/gallery/like/' + imageID)
+  updateGalleryImages(id) {
+    Axios.put('/gallery/like/${id}')
       .then((response) => {
         console.log('response: ', response);
         this.getGalleryImages();
       })
   }
   
+  clickLike = (event) => {
+    const id = event.target.dataset.id;
+    this.updateGalleryImages(id);
+  }
 
   render() {
-    const pictureList = this.state.galleryItems.map((indvItem, index) => {
-
-      const showLikes = true;
-      let likeElement = <p>Likes: {indvItem.likes}</p>;
-
-      if (!showLikes) {
-        likeElement = <p></p>;
-      }
-
-      return ( <p key={index}>
-          <img src={indvItem.path} alt={indvItem.description}/>
-          <br/>
-          {indvItem.description}
-          <br/>
-          {likeElement}
-          <br/>
-          <button data-id={index} onClick={this.updateGalleryImages}>Love It!</button>
-        </p>
-      )
-    });
-  
-
-    return (
+   return (
       <div className="App">
         <header className="App-header">
           <h1 className="App-title">Gallery of my life</h1>
         </header>
         <br/>
-        <p>Gallery goes here</p>
-       {pictureList}
+        <GalleryList
+            galleryData={this.state.galleryData}
+            clickLike={this.clickLike}
+        />
       </div>
     );
   }
